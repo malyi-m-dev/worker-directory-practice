@@ -1,5 +1,7 @@
 # WorkerDirectory — учёт сотрудников (класс WORKER)
 
+[![Build and self-test](https://github.com/malyi-m-dev/worker-directory-practice/actions/workflows/dotnet.yml/badge.svg)](https://github.com/malyi-m-dev/worker-directory-practice/actions/workflows/dotnet.yml)
+
 Проект подготовлен в рамках производственной (технологической (проектно-технологической))
 практики, кейс-задача № 3, для **ООО «Шеринговые Технологии»** (отдел информационных
 технологий, платформа «Юрент», группа МТС).
