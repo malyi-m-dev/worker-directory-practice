@@ -1,38 +1,40 @@
 # WorkerDirectory — учёт сотрудников (класс WORKER)
 
-[![Build and self-test](https://github.com/malyi-m-dev/worker-directory-practice/actions/workflows/dotnet.yml/badge.svg)](https://github.com/malyi-m-dev/worker-directory-practice/actions/workflows/dotnet.yml)
+[![Build and self-test](https://github.com/malyi-m-dev/worker-directory-practice/actions/workflows/kotlin.yml/badge.svg)](https://github.com/malyi-m-dev/worker-directory-practice/actions/workflows/kotlin.yml)
 
 Проект подготовлен в рамках производственной (технологической (проектно-технологической))
 практики, кейс-задача № 3, для **ООО «Шеринговые Технологии»** (отдел информационных
-технологий, платформа «Юрент», группа МТС).
+технологий, платформа «Юрент», группа МТС). Реализация — на **Kotlin** (JVM).
 
 ## Что делает программа
 
 - Хранит сотрудников в виде объектов класса `Worker`: фамилия и инициалы, должность,
   зарплата, год поступления на работу.
 - Данные вводятся с клавиатуры; объекты складываются в динамическую коллекцию
-  `List<Worker>`.
+  `MutableList<Worker>`.
 - Пользователь вводит пороговое значение стажа (в годах); программа выводит фамилии
   сотрудников, чей стаж работы в организации **больше** этого значения, либо сообщение
   об отсутствии таких сотрудников.
-- Класс `Worker` описан в отдельном модуле — файле [`Worker.cs`](./Worker.cs); логика
-  ввода/вывода — в [`Program.cs`](./Program.cs).
+- Класс `Worker` описан в отдельном модуле — файле [`Worker.kt`](./Worker.kt); логика
+  ввода/вывода — в [`Program.kt`](./Program.kt).
 
 ## Структура репозитория
 
 ```
 WorkerDirectory/
-├── Worker.cs              — класс WORKER (поля, конструкторы, деструктор, методы)
-├── Program.cs              — точка входа, ввод/вывод, фильтрация по стажу
-├── SelfTests.cs            — самопроверочные тесты (без внешних пакетов)
-├── WorkerDirectory.csproj  — проект .NET 8 (консольное приложение)
-└── .github/workflows/      — CI: сборка и прогон тестов на GitHub Actions
+├── Worker.kt                — класс WORKER (поля, конструкторы, деструктор, методы)
+├── Program.kt                — точка входа, ввод/вывод, фильтрация по стажу
+├── SelfTests.kt               — самопроверочные тесты (без внешних пакетов)
+└── .github/workflows/        — CI: установка Kotlin, сборка и прогон тестов на GitHub Actions
 ```
 
 ## Как собрать и запустить
 
+Требуется установленный компилятор Kotlin (`kotlinc`) и JDK 17+.
+
 ```bash
-dotnet run
+kotlinc Worker.kt Program.kt SelfTests.kt -include-runtime -d app.jar
+java -jar app.jar
 ```
 
 Программа предзаполнит список демонстрационными сотрудниками (созданными через
@@ -42,27 +44,27 @@ dotnet run
 ## Как прогнать тесты
 
 ```bash
-dotnet run -- --selftest
+java -jar app.jar --selftest
 ```
 
 Тесты проверяют конструкторы (по умолчанию, частичные, полный, копирующий),
 методы изменения/отображения полей, расчёт стажа и валидацию данных (отрицательная
 зарплата отклоняется исключением). При каждом push сборка и тесты автоматически
-запускаются в GitHub Actions (см. значок статуса выше, если добавлен badge, либо
-вкладку **Actions** репозитория).
+запускаются в GitHub Actions (см. значок статуса выше либо вкладку **Actions**
+репозитория).
 
 ## Класс WORKER: краткая сводка по ООП
 
-| Требование             | Реализация в `Worker.cs`                                             |
+| Требование             | Реализация в `Worker.kt`                                             |
 |-------------------------|------------------------------------------------------------------------|
-| Инкапсуляция            | Поля `private`, доступ через свойства с валидацией и методы Get/Set   |
+| Инкапсуляция            | Свойства (`var`) с кастомными сеттерами, выполняющими валидацию         |
 | Конструктор по умолчанию| `Worker()`                                                              |
-| Конструкторы с параметрами | `Worker(ФИО, должность)`, `Worker(ФИО, должность, зарплата)`, `Worker(ФИО, должность, зарплата, год)`, конструктор копирования `Worker(Worker other)` |
-| Деструктор              | `~Worker()` (финализатор — синтаксическое требование задания; в C# управляется GC) |
-| Методы изменения        | `SetSurnameInitials`, `SetPosition`, `SetSalary`, `SetHireYear`, `ChangeData`   |
-| Методы отображения      | `GetSurnameInitials`, `GetPosition`, `GetSalary`, `GetHireYear`, `Display()`, `ToString()` |
-| Метод по условию задачи | `GetExperience()` / `GetExperience(int asOfYear)` — расчёт стажа       |
-| Хранение объектов       | `List<Worker>` (динамическая коллекция) в `Program.cs`                  |
+| Конструкторы с параметрами | `Worker(ФИО, должность)`, `Worker(ФИО, должность, зарплата)`, `Worker(ФИО, должность, зарплата, год)`, конструктор копирования `Worker(other: Worker)` |
+| Деструктор              | `protected fun finalize()` — учебная демонстрация; на JVM управляется сборщиком мусора, для реальных ресурсов используется `AutoCloseable`/`use {}` |
+| Методы изменения        | `setSurnameInitials`, `setPosition`, `setSalary`, `setHireYear`, `changeData` |
+| Методы отображения      | `getSurnameInitials`, `getPosition`, `getSalary`, `getHireYear`, `display()`, `toString()` |
+| Метод по условию задачи | `getExperience(asOfYear: Int = текущий год)` — расчёт стажа            |
+| Хранение объектов       | `MutableList<Worker>` (динамическая коллекция) в `Program.kt`           |
 
 Более подробный аналитический разбор (атрибуты, методы, абстракция, инкапсуляция,
 наследование, полиморфизм, тестирование, документация, итерация) приведён в отчёте

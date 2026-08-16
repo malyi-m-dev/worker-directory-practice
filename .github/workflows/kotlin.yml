@@ -1,0 +1,32 @@
+name: Build and self-test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install Kotlin compiler (SDKMAN)
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install kotlin < /dev/null
+          echo "$HOME/.sdkman/candidates/kotlin/current/bin" >> "$GITHUB_PATH"
+
+      - name: Compile
+        run: kotlinc Worker.kt Program.kt SelfTests.kt -include-runtime -d app.jar
+
+      - name: Run self-tests (класс Worker)
+        run: java -jar app.jar --selftest
