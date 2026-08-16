@@ -11,44 +11,44 @@ object SelfTests {
     private var failed = 0
 
     fun run() {
-        println("=== Самопроверка класса Worker ===\n")
+        println("=== Самопроверка класса Worker (учёт парка СИМ) ===\n")
 
         check("Конструктор по умолчанию задаёт нейтральные значения") {
             val w = Worker()
-            w.getSurnameInitials() == "Не указано" && w.getSalary() == 0.0
+            w.getInventoryNumber() == "Не указан" && w.getBookValue() == 0.0
         }
 
-        check("Конструктор (ФИО, должность) обнуляет зарплату и ставит текущий год") {
-            val w = Worker("Иванов И.И.", "Тестировщик")
-            w.getSalary() == 0.0 && w.getHireYear() == LocalDate.now().year
+        check("Конструктор (номер, тип ТС) обнуляет стоимость и ставит текущий год") {
+            val w = Worker("Юрент-000001", "Электросамокат")
+            w.getBookValue() == 0.0 && w.getCommissionedYear() == LocalDate.now().year
         }
 
         check("Полный конструктор сохраняет все поля") {
-            val w = Worker("Петров П.П.", "QA-инженер", 150000.0, 2020)
-            w.getSurnameInitials() == "Петров П.П." &&
-                w.getPosition() == "QA-инженер" &&
-                w.getSalary() == 150000.0 &&
-                w.getHireYear() == 2020
+            val w = Worker("Юрент-000777", "Электровелосипед", 65000.0, 2021)
+            w.getInventoryNumber() == "Юрент-000777" &&
+                w.getVehicleType() == "Электровелосипед" &&
+                w.getBookValue() == 65000.0 &&
+                w.getCommissionedYear() == 2021
         }
 
-        check("getExperience(asOfYear) считает стаж корректно") {
-            val w = Worker("Сидоров С.С.", "DevOps", 200000.0, 2015)
-            w.getExperience(2025) == 10
+        check("getServiceYears(asOfYear) считает срок эксплуатации корректно") {
+            val w = Worker("Юрент-000555", "Электросамокат", 40000.0, 2020)
+            w.getServiceYears(2025) == 5
         }
 
-        check("Методы-сеттеры изменяют поля (инкапсуляция через свойства)") {
+        check("Методы-сеттеры изменяют поля (инкапсуляция через методы)") {
             val w = Worker()
-            w.setSurnameInitials("Кузнецова А.А.")
-            w.setPosition("Продакт-менеджер")
-            w.setSalary(220000.0)
-            w.setHireYear(2022)
-            w.getSurnameInitials() == "Кузнецова А.А." && w.getHireYear() == 2022
+            w.setInventoryNumber("Юрент-999999")
+            w.setVehicleType("Павербанк")
+            w.setBookValue(3500.0)
+            w.setCommissionedYear(2023)
+            w.getInventoryNumber() == "Юрент-999999" && w.getCommissionedYear() == 2023
         }
 
-        check("Отрицательная зарплата отклоняется исключением (валидация в сеттере)") {
+        check("Отрицательная стоимость отклоняется исключением (валидация в сеттере)") {
             val w = Worker()
             try {
-                w.setSalary(-1000.0)
+                w.setBookValue(-1000.0)
                 false // исключение должно было быть выброшено
             } catch (e: IllegalArgumentException) {
                 true
@@ -56,10 +56,10 @@ object SelfTests {
         }
 
         check("Конструктор копирования создаёт независимый объект") {
-            val original = Worker("Орлова О.О.", "Аналитик", 175000.0, 2021)
+            val original = Worker("Юрент-000321", "Электросамокат", 45000.0, 2022)
             val copy = Worker(original)
-            copy.setSalary(999999.0)
-            original.getSalary() == 175000.0 && copy.getSalary() == 999999.0
+            copy.setBookValue(1.0)
+            original.getBookValue() == 45000.0 && copy.getBookValue() == 1.0
         }
 
         println("\nИтог: пройдено $passed, провалено $failed из ${passed + failed}.")

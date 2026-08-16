@@ -2,10 +2,11 @@ import java.time.LocalDate
 
 /**
  * Точка входа. Реализует:
- *  1) ввод с клавиатуры данных объектов класса Worker;
+ *  1) ввод с клавиатуры данных объектов класса Worker (единиц парка СИМ);
  *  2) хранение объектов в динамической коллекции MutableList<Worker>;
- *  3) вывод фамилий работников, чей стаж превышает введённое пороговое значение;
- *  4) сообщение об отсутствии таких работников, если их нет.
+ *  3) вывод бортовых номеров единиц парка, чей срок эксплуатации превышает
+ *     введённое пороговое значение (кандидаты на списание/замену);
+ *  4) сообщение об отсутствии таких единиц, если их нет.
  * Класс Worker и его логика вынесены в отдельный модуль — файл Worker.kt.
  */
 fun main(args: Array<String>) {
@@ -14,59 +15,59 @@ fun main(args: Array<String>) {
         return
     }
 
-    println("=== Учёт сотрудников ООО «Шеринговые Технологии» (класс WORKER) ===\n")
+    println("=== Учёт парка средств индивидуальной мобильности ООО «Шеринговые Технологии» (класс WORKER) ===\n")
 
-    val workers = mutableListOf<Worker>()
-    seedDemoData(workers) // демонстрационные записи, чтобы программу можно было проверить сразу
+    val fleet = mutableListOf<Worker>()
+    seedDemoData(fleet) // демонстрационные записи, чтобы программу можно было проверить сразу
 
     while (true) {
-        print("\nДобавить нового сотрудника? (y/n): ")
+        print("\nДобавить единицу парка? (y/n): ")
         val answer = readLine()?.trim()?.lowercase()
         if (answer != "y" && answer != "д" && answer != "да") break
 
-        workers.add(readWorkerFromConsole())
-        println("Сотрудник добавлен.")
+        fleet.add(readWorkerFromConsole())
+        println("Единица парка добавлена.")
     }
 
-    println("\n--- Текущий список сотрудников ---")
-    workers.forEach { it.display() }
+    println("\n--- Текущий состав парка ---")
+    fleet.forEach { it.display() }
 
     println(
-        "\nВведите минимальный стаж работы в организации (лет), " +
-            "чтобы вывести фамилии сотрудников, чей стаж БОЛЬШЕ этого значения:"
+        "\nВведите минимальный срок эксплуатации (лет), чтобы вывести бортовые номера " +
+            "единиц парка, чей срок эксплуатации БОЛЬШЕ этого значения (кандидаты на списание):"
     )
-    val threshold = readInt("Пороговое значение стажа: ", min = 0)
+    val threshold = readInt("Пороговое значение срока эксплуатации: ", min = 0)
 
-    val filtered = workers.filter { it.getExperience() > threshold }
+    val filtered = fleet.filter { it.getServiceYears() > threshold }
 
     println()
     if (filtered.isEmpty()) {
-        println("Работников со стажем более $threshold лет не найдено.")
+        println("Единиц парка со сроком эксплуатации более $threshold лет не найдено.")
     } else {
-        println("Сотрудники со стажем более $threshold лет:")
-        filtered.forEach { println(" - ${it.getSurnameInitials()} (стаж ${it.getExperience()} л.)") }
+        println("Единицы парка со сроком эксплуатации более $threshold лет (кандидаты на списание):")
+        filtered.forEach { println(" - ${it.getInventoryNumber()} (в парке ${it.getServiceYears()} л.)") }
     }
 }
 
-private fun seedDemoData(workers: MutableList<Worker>) {
+private fun seedDemoData(fleet: MutableList<Worker>) {
     // Демонстрация нескольких перегруженных конструкторов класса Worker.
-    workers.add(Worker()) // конструктор по умолчанию
-    workers.add(Worker("Туринге И.О.", "Генеральный директор")) // ФИО + должность
-    workers.add(Worker("Петрова А.С.", "Backend-разработчик (Kotlin)", 180000.0)) // + зарплата
-    workers.add(Worker("Сидоров К.В.", "DevOps-инженер", 210000.0, 2019)) // полный набор
+    fleet.add(Worker()) // конструктор по умолчанию
+    fleet.add(Worker("Юрент-014522", "Электросамокат Юрент 2.0")) // номер + тип
+    fleet.add(Worker("Юрент-021390", "Электровелосипед Юрент", 65000.0)) // + стоимость
+    fleet.add(Worker("Юрент-008117", "Электросамокат Ninebot Max (партнёрский)", 48000.0, 2020)) // полный набор
 }
 
 private fun readWorkerFromConsole(): Worker {
-    print("Фамилия и инициалы (например, Иванов И.И.): ")
-    val surnameInitials = readLine().orEmpty()
+    print("Бортовой (инвентарный) номер (например, Юрент-014522): ")
+    val inventoryNumber = readLine().orEmpty()
 
-    print("Должность: ")
-    val position = readLine().orEmpty()
+    print("Тип транспортного средства (самокат/велосипед/павербанк, модель): ")
+    val vehicleType = readLine().orEmpty()
 
-    val salary = readDouble("Зарплата, руб.: ")
-    val hireYear = readInt("Год поступления на работу: ", min = 1950, max = LocalDate.now().year)
+    val bookValue = readDouble("Балансовая стоимость, руб.: ")
+    val commissionedYear = readInt("Год ввода в эксплуатацию: ", min = 2018, max = LocalDate.now().year)
 
-    return Worker(surnameInitials, position, salary, hireYear)
+    return Worker(inventoryNumber, vehicleType, bookValue, commissionedYear)
 }
 
 private fun readInt(prompt: String, min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE): Int {

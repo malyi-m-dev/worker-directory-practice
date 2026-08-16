@@ -1,45 +1,55 @@
 import java.time.LocalDate
 
 /**
- * Класс WORKER описывает сотрудника подразделения информационных технологий
- * ООО «Шеринговые Технологии» (группа МТС, платформа «Юрент»).
- * Содержит фамилию и инициалы, должность, зарплату и год поступления на работу.
+ * Класс WORKER адаптирован под профильную деятельность ООО «Шеринговые Технологии»
+ * (платформа «Юрент», группа МТС): моделирует единицу подвижного состава парка
+ * средств индивидуальной мобильности (электросамокат, электровелосипед, павербанк) —
+ * тот актив, вокруг которого построен весь сервис компании.
+ *
+ * Поля исходного задания перенесены на предметную область самокатного парка
+ * по прямой аналогии:
+ *   фамилия и инициалы работника  → бортовой (инвентарный) номер самоката
+ *   название занимаемой должности → тип/модель транспортного средства
+ *   зарплата                      → балансовая стоимость единицы, руб.
+ *   год поступления на работу     → год ввода в эксплуатацию
+ *   стаж работы в организации     → срок эксплуатации (лет) — см. getServiceYears()
+ *
  * Данные инкапсулированы: поля закрыты (private), доступ — только через
  * явные методы изменения и отображения, выполняющие валидацию.
  */
 class Worker {
 
     // ------------------- Поля (инкапсулированы) -------------------
-    private var surnameInitials: String = "Не указано"
-    private var position: String = "Не указано"
-    private var salary: Double = 0.0
-    private var hireYear: Int = LocalDate.now().year
+    private var inventoryNumber: String = "Не указан"
+    private var vehicleType: String = "Не указан"
+    private var bookValue: Double = 0.0
+    private var commissionedYear: Int = LocalDate.now().year
 
     // ------------------- Конструкторы -------------------
 
     /** Конструктор по умолчанию. */
     constructor()
 
-    /** Конструктор с частичными параметрами (ФИО и должность). */
-    constructor(surnameInitials: String, position: String) : this() {
-        setSurnameInitials(surnameInitials)
-        setPosition(position)
+    /** Конструктор с частичными параметрами (бортовой номер и тип ТС). */
+    constructor(inventoryNumber: String, vehicleType: String) : this() {
+        setInventoryNumber(inventoryNumber)
+        setVehicleType(vehicleType)
     }
 
-    /** Конструктор с параметрами ФИО, должность, зарплата. */
-    constructor(surnameInitials: String, position: String, salary: Double)
-        : this(surnameInitials, position) {
-        setSalary(salary)
+    /** Конструктор с параметрами: бортовой номер, тип ТС, балансовая стоимость. */
+    constructor(inventoryNumber: String, vehicleType: String, bookValue: Double)
+        : this(inventoryNumber, vehicleType) {
+        setBookValue(bookValue)
     }
 
     /** Полный конструктор со всеми параметрами. */
-    constructor(surnameInitials: String, position: String, salary: Double, hireYear: Int)
-        : this(surnameInitials, position, salary) {
-        setHireYear(hireYear)
+    constructor(inventoryNumber: String, vehicleType: String, bookValue: Double, commissionedYear: Int)
+        : this(inventoryNumber, vehicleType, bookValue) {
+        setCommissionedYear(commissionedYear)
     }
 
     /** Конструктор копирования — создаёт независимую копию объекта. */
-    constructor(other: Worker) : this(other.surnameInitials, other.position, other.salary, other.hireYear)
+    constructor(other: Worker) : this(other.inventoryNumber, other.vehicleType, other.bookValue, other.commissionedYear)
 
     // ------------------- Деструктор -------------------
     // На платформе JVM память управляется сборщиком мусора, объекты не имеют
@@ -55,56 +65,58 @@ class Worker {
     }
 
     // ------------------- Методы изменения полей -------------------
-    fun setSurnameInitials(value: String) {
-        surnameInitials = if (value.isBlank())
-            throw IllegalArgumentException("Фамилия и инициалы не могут быть пустыми.")
+    fun setInventoryNumber(value: String) {
+        inventoryNumber = if (value.isBlank())
+            throw IllegalArgumentException("Бортовой номер не может быть пустым.")
         else value.trim()
     }
 
-    fun setPosition(value: String) {
-        position = if (value.isBlank())
-            throw IllegalArgumentException("Должность не может быть пустой.")
+    fun setVehicleType(value: String) {
+        vehicleType = if (value.isBlank())
+            throw IllegalArgumentException("Тип транспортного средства не может быть пустым.")
         else value.trim()
     }
 
-    fun setSalary(value: Double) {
-        salary = if (value < 0)
-            throw IllegalArgumentException("Зарплата не может быть отрицательной.")
+    fun setBookValue(value: Double) {
+        bookValue = if (value < 0)
+            throw IllegalArgumentException("Балансовая стоимость не может быть отрицательной.")
         else value
     }
 
-    fun setHireYear(value: Int) {
+    fun setCommissionedYear(value: Int) {
         val currentYear = LocalDate.now().year
-        hireYear = if (value < 1950 || value > currentYear)
-            throw IllegalArgumentException("Год поступления должен быть в диапазоне 1950–$currentYear.")
+        // 2018 — год запуска кикшеринга компанией (см. кейс-задачу № 1),
+        // раньше этого года единиц парка электросамокатов быть не может.
+        commissionedYear = if (value < 2018 || value > currentYear)
+            throw IllegalArgumentException("Год ввода в эксплуатацию должен быть в диапазоне 2018–$currentYear.")
         else value
     }
 
-    fun changeData(surnameInitials: String, position: String, salary: Double, hireYear: Int) {
-        setSurnameInitials(surnameInitials)
-        setPosition(position)
-        setSalary(salary)
-        setHireYear(hireYear)
+    fun changeData(inventoryNumber: String, vehicleType: String, bookValue: Double, commissionedYear: Int) {
+        setInventoryNumber(inventoryNumber)
+        setVehicleType(vehicleType)
+        setBookValue(bookValue)
+        setCommissionedYear(commissionedYear)
     }
 
     // ------------------- Методы отображения полей -------------------
-    fun getSurnameInitials(): String = surnameInitials
-    fun getPosition(): String = position
-    fun getSalary(): Double = salary
-    fun getHireYear(): Int = hireYear
+    fun getInventoryNumber(): String = inventoryNumber
+    fun getVehicleType(): String = vehicleType
+    fun getBookValue(): Double = bookValue
+    fun getCommissionedYear(): Int = commissionedYear
 
-    /** Выводит данные о работнике на консоль в читаемом виде. */
+    /** Выводит данные о единице парка на консоль в читаемом виде. */
     fun display() {
         println(
-            "%-20s | %-25s | %10.2f руб. | принят(а) в %d г. | стаж %d л."
-                .format(surnameInitials, position, salary, hireYear, getExperience())
+            "%-16s | %-30s | %10.2f руб. | введён в эксплуатацию в %d г. | в парке %d л."
+                .format(inventoryNumber, vehicleType, bookValue, commissionedYear, getServiceYears())
         )
     }
 
     // ------------------- Метод, требуемый условием задачи -------------------
 
-    /** Стаж работы в организации в полных годах на указанный (по умолчанию — текущий) год. */
-    fun getExperience(asOfYear: Int = LocalDate.now().year): Int = asOfYear - hireYear
+    /** Срок эксплуатации в полных годах на указанный (по умолчанию — текущий) год. */
+    fun getServiceYears(asOfYear: Int = LocalDate.now().year): Int = asOfYear - commissionedYear
 
-    override fun toString(): String = "$surnameInitials — $position, стаж ${getExperience()} л."
+    override fun toString(): String = "$inventoryNumber — $vehicleType, в парке ${getServiceYears()} л."
 }
