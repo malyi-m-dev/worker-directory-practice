@@ -4,40 +4,16 @@ import java.time.LocalDate
  * Класс WORKER описывает сотрудника подразделения информационных технологий
  * ООО «Шеринговые Технологии» (группа МТС, платформа «Юрент»).
  * Содержит фамилию и инициалы, должность, зарплату и год поступления на работу.
- * Данные инкапсулированы: изменение полей возможно только через свойства
- * с валидацией и методы класса.
+ * Данные инкапсулированы: поля закрыты (private), доступ — только через
+ * явные методы изменения и отображения, выполняющие валидацию.
  */
 class Worker {
 
-    // ------------------- Поля (инкапсулированы через свойства) -------------------
-    var surnameInitials: String = "Не указано"
-        set(value) {
-            field = if (value.isBlank())
-                throw IllegalArgumentException("Фамилия и инициалы не могут быть пустыми.")
-            else value.trim()
-        }
-
-    var position: String = "Не указано"
-        set(value) {
-            field = if (value.isBlank())
-                throw IllegalArgumentException("Должность не может быть пустой.")
-            else value.trim()
-        }
-
-    var salary: Double = 0.0
-        set(value) {
-            field = if (value < 0)
-                throw IllegalArgumentException("Зарплата не может быть отрицательной.")
-            else value
-        }
-
-    var hireYear: Int = LocalDate.now().year
-        set(value) {
-            val currentYear = LocalDate.now().year
-            field = if (value < 1950 || value > currentYear)
-                throw IllegalArgumentException("Год поступления должен быть в диапазоне 1950–$currentYear.")
-            else value
-        }
+    // ------------------- Поля (инкапсулированы) -------------------
+    private var surnameInitials: String = "Не указано"
+    private var position: String = "Не указано"
+    private var salary: Double = 0.0
+    private var hireYear: Int = LocalDate.now().year
 
     // ------------------- Конструкторы -------------------
 
@@ -46,20 +22,20 @@ class Worker {
 
     /** Конструктор с частичными параметрами (ФИО и должность). */
     constructor(surnameInitials: String, position: String) : this() {
-        this.surnameInitials = surnameInitials
-        this.position = position
+        setSurnameInitials(surnameInitials)
+        setPosition(position)
     }
 
     /** Конструктор с параметрами ФИО, должность, зарплата. */
     constructor(surnameInitials: String, position: String, salary: Double)
         : this(surnameInitials, position) {
-        this.salary = salary
+        setSalary(salary)
     }
 
     /** Полный конструктор со всеми параметрами. */
     constructor(surnameInitials: String, position: String, salary: Double, hireYear: Int)
         : this(surnameInitials, position, salary) {
-        this.hireYear = hireYear
+        setHireYear(hireYear)
     }
 
     /** Конструктор копирования — создаёт независимую копию объекта. */
@@ -79,16 +55,36 @@ class Worker {
     }
 
     // ------------------- Методы изменения полей -------------------
-    fun setSurnameInitials(value: String) { surnameInitials = value }
-    fun setPosition(value: String) { position = value }
-    fun setSalary(value: Double) { salary = value }
-    fun setHireYear(value: Int) { hireYear = value }
+    fun setSurnameInitials(value: String) {
+        surnameInitials = if (value.isBlank())
+            throw IllegalArgumentException("Фамилия и инициалы не могут быть пустыми.")
+        else value.trim()
+    }
+
+    fun setPosition(value: String) {
+        position = if (value.isBlank())
+            throw IllegalArgumentException("Должность не может быть пустой.")
+        else value.trim()
+    }
+
+    fun setSalary(value: Double) {
+        salary = if (value < 0)
+            throw IllegalArgumentException("Зарплата не может быть отрицательной.")
+        else value
+    }
+
+    fun setHireYear(value: Int) {
+        val currentYear = LocalDate.now().year
+        hireYear = if (value < 1950 || value > currentYear)
+            throw IllegalArgumentException("Год поступления должен быть в диапазоне 1950–$currentYear.")
+        else value
+    }
 
     fun changeData(surnameInitials: String, position: String, salary: Double, hireYear: Int) {
-        this.surnameInitials = surnameInitials
-        this.position = position
-        this.salary = salary
-        this.hireYear = hireYear
+        setSurnameInitials(surnameInitials)
+        setPosition(position)
+        setSalary(salary)
+        setHireYear(hireYear)
     }
 
     // ------------------- Методы отображения полей -------------------
